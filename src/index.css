@@ -2,7 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Reset body */
+* {
+  cursor: none !important;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -11,32 +14,23 @@ html, body {
   color-scheme: dark;
 }
 
-/* Smooth scroll */
 html {
   scroll-behavior: smooth;
 }
 
-/* Custom Scrollbar (desktop only, biar gak ganggu trackpad) */
-@media (min-width: 768px) {
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: #09090b;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #27272a;
-    border-radius: 10px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #06b6d4;
-  }
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-/* Hapus tap highlight di mobile (biar tetep clean kalau dibuka di HP) */
-* {
-  -webkit-tap-highlight-color: transparent;
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #06b6d4;
 }
