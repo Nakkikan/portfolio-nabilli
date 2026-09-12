@@ -2,43 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-/* =========================================
-   CUSTOM GLOBAL STYLES (ANTI-ERROR)
-   ========================================= */
-
-/* 1. Matikan kursor default OS/Browser secara paksa */
-* {
-  cursor: none !important;
-}
-
-/* 2. Reset margin/padding body biar gak ada geseran aneh */
+/* Reset body */
 html, body {
   margin: 0;
   padding: 0;
-  overflow-x: hidden; /* Cegah scroll ke samping (kiri/kanan) */
-  background-color: #060709; /* Samain sama background web lu biar gak kedip putih pas loading */
-  color-scheme: dark; /* Paksa browser pakai mode gelap ( scrollbar, form input, dll ) */
+  overflow-x: hidden;
+  background-color: #060709;
+  color-scheme: dark;
 }
 
-/* 3. Bikin scrolling di web lu lebih smooth */
+/* Smooth scroll */
 html {
   scroll-behavior: smooth;
 }
 
-/* 4. Custom Scrollbar biar matching sama tema web (Opsional tapi keren) */
-::-webkit-scrollbar {
-  width: 8px;
+/* Custom Scrollbar (desktop only, biar gak ganggu trackpad) */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #09090b;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #27272a;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #06b6d4;
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: #09090b; /* zinc-950 */
-}
-
-::-webkit-scrollbar-thumb {
-  background: #27272a; /* zinc-800 */
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #06b6d4; /* cyan-500 */
+/* Hapus tap highlight di mobile (biar tetep clean kalau dibuka di HP) */
+* {
+  -webkit-tap-highlight-color: transparent;
 }

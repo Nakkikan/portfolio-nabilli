@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 // ==========================================
-// 🎨 CUSTOM BRAND ICONS (Lucide v1.0+ removed brand icons)
+// 🎨 CUSTOM BRAND ICONS
 // ==========================================
 const Github = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -58,31 +58,11 @@ const Tiktok = (props) => (
 );
 
 // ==========================================
-// 🎭 ANIMATION VARIANTS - COMPREHENSIVE
+// 🎭 ANIMATION VARIANTS
 // ==========================================
 const fadeInUp = {
   hidden: { opacity: 0, y: 35 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
-};
-
-const fadeInDown = {
-  hidden: { opacity: 0, y: -35 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
-};
-
-const fadeInLeft = {
-  hidden: { opacity: 0, x: -35 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
-};
-
-const fadeInRight = {
-  hidden: { opacity: 0, x: 35 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
-};
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.85 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }
 };
 
 const staggerContainer = {
@@ -95,25 +75,27 @@ const staggerContainerFast = {
   visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.05 } }
 };
 
-const staggerContainerSlow = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } }
-};
-
 // ==========================================
-// 🎯 CUSTOM CURSOR - PREMIUM VERSION
+// 🎯 CUSTOM CURSOR (DESKTOP ONLY)
 // ==========================================
 const CustomCursor = () => {
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
 
   const springConfig = { damping: 25, stiffness: 350, mass: 0.2 };
   const xSpring = useSpring(cursorX, springConfig);
   const ySpring = useSpring(cursorY, springConfig);
 
   useEffect(() => {
+    if (isTouchDevice) return;
+    
     const handleMouseMove = (e) => {
       if (!isVisible) setIsVisible(true);
       cursorX.set(e.clientX);
@@ -137,7 +119,9 @@ const CustomCursor = () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseover', handleMouseOver);
     };
-  }, [isVisible, cursorX, cursorY]);
+  }, [isVisible, cursorX, cursorY, isTouchDevice]);
+
+  if (isTouchDevice) return null;
 
   return (
     <>
@@ -175,7 +159,7 @@ const CustomCursor = () => {
 };
 
 // ==========================================
-// 🧲 MAGNETIC BUTTON - PREMIUM
+// 🧲 MAGNETIC BUTTON (DESKTOP ONLY)
 // ==========================================
 const MagneticButton = ({ children, className, onClick, type, disabled, strength = 0.2 }) => {
   const ref = useRef(null);
@@ -183,6 +167,14 @@ const MagneticButton = ({ children, className, onClick, type, disabled, strength
   const y = useMotionValue(0);
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   const springConfig = { stiffness: 150, damping: 15 };
   const springX = useSpring(x, springConfig);
@@ -191,7 +183,7 @@ const MagneticButton = ({ children, className, onClick, type, disabled, strength
   const springRotateY = useSpring(rotateY, springConfig);
   
   const handleMouse = (e) => {
-    if (!ref.current || disabled) return;
+    if (!ref.current || disabled || isMobile) return;
     const rect = ref.current.getBoundingClientRect();
     const deltaX = e.clientX - (rect.left + rect.width / 2);
     const deltaY = e.clientY - (rect.top + rect.height / 2);
@@ -208,6 +200,19 @@ const MagneticButton = ({ children, className, onClick, type, disabled, strength
     rotateX.set(0);
     rotateY.set(0);
   };
+  
+  if (isMobile) {
+    return (
+      <button 
+        className={className} 
+        onClick={onClick} 
+        type={type} 
+        disabled={disabled}
+      >
+        {children}
+      </button>
+    );
+  }
   
   return (
     <motion.div
@@ -236,7 +241,7 @@ const MagneticButton = ({ children, className, onClick, type, disabled, strength
 };
 
 // ==========================================
-// 📝 TEXT REVEAL - MULTIPLE DIRECTIONS
+// 📝 TEXT REVEAL
 // ==========================================
 const TextReveal = ({ children, className, delay = 0, direction = 'up' }) => {
   const ref = useRef(null);
@@ -264,7 +269,7 @@ const TextReveal = ({ children, className, delay = 0, direction = 'up' }) => {
 };
 
 // ==========================================
-// ✨ ANIMATED TEXT - WORD BY WORD
+// ✨ ANIMATED TEXT
 // ==========================================
 const AnimatedText = ({ text, className, delay = 0 }) => {
   const words = text.split(' ');
@@ -293,7 +298,7 @@ const AnimatedText = ({ text, className, delay = 0 }) => {
 };
 
 // ==========================================
-// 🔢 ANIMATED COUNTER - PREMIUM
+// 🔢 ANIMATED COUNTER
 // ==========================================
 const AnimatedCounter = ({ end, duration = 2, suffix = '', prefix = '' }) => {
   const [count, setCount] = useState(0);
@@ -318,22 +323,35 @@ const AnimatedCounter = ({ end, duration = 2, suffix = '', prefix = '' }) => {
 };
 
 // ==========================================
-// 🎪 3D TILT CARD - PREMIUM
+// 🎪 3D TILT CARD (DESKTOP ONLY)
 // ==========================================
 const TiltCard = ({ children, className, maxTilt = 10, scale = 1.02 }) => {
   const ref = useRef(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
   
   const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [maxTilt, -maxTilt]), { stiffness: 300, damping: 30 });
   const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-maxTilt, maxTilt]), { stiffness: 300, damping: 30 });
   
   const handleMouseMove = (e) => {
-    if (!ref.current) return;
+    if (!ref.current || isMobile) return;
     const rect = ref.current.getBoundingClientRect();
     x.set((e.clientX - rect.left - rect.width / 2) / rect.width);
     y.set((e.clientY - rect.top - rect.height / 2) / rect.height);
   };
+  
+  if (isMobile) {
+    return (
+      <div className={className}>
+        {children}
+      </div>
+    );
+  }
   
   return (
     <motion.div
@@ -358,11 +376,17 @@ const TiltCard = ({ children, className, maxTilt = 10, scale = 1.02 }) => {
 };
 
 // ==========================================
-// 🎨 PARTICLE BACKGROUND - LIGHTWEIGHT
+// 🎨 PARTICLE BACKGROUND
 // ==========================================
 const ParticleBackground = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+  
   const particles = useMemo(() => 
-    Array.from({ length: 30 }, (_, i) => ({
+    Array.from({ length: isMobile ? 15 : 30 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
@@ -371,7 +395,8 @@ const ParticleBackground = () => {
       delay: Math.random() * 5,
       color: ['bg-cyan-400/20', 'bg-emerald-400/20', 'bg-purple-400/20'][Math.floor(Math.random() * 3)]
     })), 
-  []);
+    [isMobile]
+  );
   
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -415,7 +440,7 @@ const FloatingElement = ({ children, duration = 4, distance = 15 }) => (
 const Marquee = ({ children, speed = 40, reverse = false, className }) => (
   <div className={`overflow-hidden relative ${className}`}>
     <motion.div
-      className="flex gap-6 whitespace-nowrap"
+      className="flex gap-4 sm:gap-6 whitespace-nowrap"
       animate={{ x: reverse ? ["-50%", "0%"] : ["0%", "-50%"] }}
       transition={{ duration: speed, repeat: Infinity, ease: "linear" }}
     >
@@ -426,19 +451,19 @@ const Marquee = ({ children, speed = 40, reverse = false, className }) => (
 );
 
 // ==========================================
-// 🎯 SECTION HEADING - PREMIUM
+// 🎯 SECTION HEADING
 // ==========================================
 const SectionHeading = ({ icon: Icon, title, subtitle, iconColor = "text-cyan-400", badge }) => (
-  <div className="flex flex-col gap-3 border-b border-zinc-800 pb-6 mb-12">
-    <div className="flex items-center gap-4 flex-wrap">
+  <div className="flex flex-col gap-2 sm:gap-3 border-b border-zinc-800 pb-4 sm:pb-6 mb-8 sm:mb-12">
+    <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
       <motion.div 
         whileHover={{ rotate: 360, scale: 1.1 }}
         transition={{ duration: 0.6 }}
-        className="p-3 rounded-2xl bg-gradient-to-br from-zinc-900 to-zinc-800 border border-zinc-700"
+        className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-br from-zinc-900 to-zinc-800 border border-zinc-700"
       >
-        <Icon className={`w-6 h-6 ${iconColor}`} />
+        <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColor}`} />
       </motion.div>
-      <TextReveal className="text-3xl md:text-4xl lg:text-5xl font-black text-white">
+      <TextReveal className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white">
         {title}
       </TextReveal>
       {badge && (
@@ -446,7 +471,7 @@ const SectionHeading = ({ icon: Icon, title, subtitle, iconColor = "text-cyan-40
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs font-mono text-cyan-400"
+          className="px-2 sm:px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-[10px] sm:text-xs font-mono text-cyan-400"
         >
           {badge}
         </motion.span>
@@ -458,7 +483,7 @@ const SectionHeading = ({ icon: Icon, title, subtitle, iconColor = "text-cyan-40
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.2 }}
-        className="text-zinc-400 text-base md:text-lg leading-relaxed max-w-3xl"
+        className="text-zinc-400 text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed max-w-3xl"
       >
         {subtitle}
       </motion.p>
@@ -467,38 +492,10 @@ const SectionHeading = ({ icon: Icon, title, subtitle, iconColor = "text-cyan-40
 );
 
 // ==========================================
-// 🎯 GRADIENT BORDER CARD
-// ==========================================
-const GradientBorderCard = ({ children, className, gradient = "from-cyan-500 via-purple-500 to-emerald-500" }) => (
-  <div className={`relative p-[1px] rounded-3xl bg-gradient-to-r ${gradient} ${className}`}>
-    <div className="relative bg-zinc-950 rounded-3xl h-full">
-      {children}
-    </div>
-  </div>
-);
-
-// ==========================================
-// 🎯 SHIMMER EFFECT
-// ==========================================
-const ShimmerEffect = ({ children, className }) => (
-  <div className={`relative overflow-hidden ${className}`}>
-    {children}
-    <motion.div
-      className="absolute inset-0 pointer-events-none"
-      style={{
-        background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)'
-      }}
-      animate={{ x: ['-100%', '200%'] }}
-      transition={{ duration: 3, repeat: Infinity, ease: "linear", repeatDelay: 2 }}
-    />
-  </div>
-);
-
-// ==========================================
 // 🎯 GLOW ORB
 // ==========================================
 const GlowOrb = ({ color = "cyan", size = "md", position }) => {
-  const sizes = { sm: "w-[300px] h-[300px]", md: "w-[500px] h-[500px]", lg: "w-[700px] h-[700px]" };
+  const sizes = { sm: "w-[200px] h-[200px] sm:w-[300px] sm:h-[300px]", md: "w-[300px] h-[300px] sm:w-[500px] sm:h-[500px]", lg: "w-[400px] h-[400px] sm:w-[700px] sm:h-[700px]" };
   const colors = {
     cyan: "bg-cyan-500",
     emerald: "bg-emerald-500",
@@ -508,48 +505,48 @@ const GlowOrb = ({ color = "cyan", size = "md", position }) => {
   };
   return (
     <div 
-      className={`absolute ${sizes[size]} ${colors[color]} rounded-full blur-[150px] pointer-events-none opacity-[0.08] ${position}`}
+      className={`absolute ${sizes[size]} ${colors[color]} rounded-full blur-[100px] sm:blur-[150px] pointer-events-none opacity-[0.08] ${position}`}
     />
   );
 };
 
 // ==========================================
-// 🎯 STAT CARD - PREMIUM
+// 🎯 STAT CARD
 // ==========================================
 const StatCard = ({ icon: Icon, label, value, suffix, sub, iconColor = "text-cyan-400", gradient = "from-cyan-500/10 to-emerald-500/10" }) => {
   const IconComponent = Icon;
   return (
-    <TiltCard className={`p-6 rounded-2xl bg-gradient-to-br ${gradient} backdrop-blur-sm border border-zinc-700/80 hover:border-cyan-500/50 shadow-xl group relative overflow-hidden`}>
+    <TiltCard className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br ${gradient} backdrop-blur-sm border border-zinc-700/80 hover:border-cyan-500/50 shadow-xl group relative overflow-hidden`}>
       <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <div className="relative z-10">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
           <motion.div 
             whileHover={{ rotate: 360 }} 
             transition={{ duration: 0.6 }}
-            className="p-2.5 rounded-xl bg-zinc-900/80 border border-zinc-700/50"
+            className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-zinc-900/80 border border-zinc-700/50"
           >
-            <IconComponent className={`w-5 h-5 ${iconColor}`} />
+            <IconComponent className={`w-4 h-4 sm:w-5 sm:h-5 ${iconColor}`} />
           </motion.div>
-          <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">{label}</span>
+          <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-zinc-500">{label}</span>
         </div>
-        <p className="text-3xl font-black text-white mb-1">
+        <p className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-1">
           {typeof value === 'number' ? (
             <AnimatedCounter end={value} suffix={suffix || ''} />
           ) : (
             <>
               {value}
-              {suffix && <span className="text-lg text-zinc-400 ml-1">{suffix}</span>}
+              {suffix && <span className="text-sm sm:text-base md:text-lg text-zinc-400 ml-1">{suffix}</span>}
             </>
           )}
         </p>
-        {sub && <p className="text-xs text-zinc-400 font-mono">{sub}</p>}
+        {sub && <p className="text-[10px] sm:text-xs text-zinc-400 font-mono">{sub}</p>}
       </div>
     </TiltCard>
   );
 };
 
 // ==========================================
-// 🎯 PROJECT CARD - PREMIUM
+// 🎯 PROJECT CARD
 // ==========================================
 const ProjectCard = ({ project, index, featured = false }) => (
   <motion.div 
@@ -557,53 +554,54 @@ const ProjectCard = ({ project, index, featured = false }) => (
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5, delay: index * 0.1 }}
-    whileHover={{ y: -12 }}
-    className={`group relative rounded-3xl bg-zinc-900/40 backdrop-blur-sm border border-zinc-700/80 hover:border-cyan-500/50 overflow-hidden shadow-xl transition-all duration-300 ${
-      featured ? 'md:col-span-2 lg:col-span-2 h-[450px]' : 'h-96'
+    whileHover={{ y: -8 }}
+    className={`group relative rounded-2xl sm:rounded-3xl bg-zinc-900/40 backdrop-blur-sm border border-zinc-700/80 hover:border-cyan-500/50 overflow-hidden shadow-xl transition-all duration-300 ${
+      featured ? 'md:col-span-2 lg:col-span-2 h-72 sm:h-80 md:h-[450px]' : 'h-72 sm:h-80 md:h-96'
     }`}
   >
     <div className="relative h-full w-full overflow-hidden bg-zinc-950">
       <motion.img 
         src={project.image}
         alt={project.title}
+        loading="lazy"
         className="w-full h-full object-cover"
-        whileHover={{ scale: 1.1 }}
+        whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.7 }}
         onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800"; }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
       
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
         <motion.span 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-[10px] font-mono uppercase tracking-wider text-cyan-400 bg-black/80 backdrop-blur-md border border-cyan-800/40 px-3 py-1 rounded-full"
+          className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-cyan-400 bg-black/80 backdrop-blur-md border border-cyan-800/40 px-2 sm:px-3 py-1 rounded-full"
         >
           {project.status}
         </motion.span>
       </div>
 
       {project.metrics && (
-        <div className="absolute top-4 right-4 z-10">
-          <span className="text-[10px] font-mono text-emerald-400 bg-black/80 backdrop-blur-md border border-emerald-800/40 px-3 py-1 rounded-full">
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
+          <span className="text-[9px] sm:text-[10px] font-mono text-emerald-400 bg-black/80 backdrop-blur-md border border-emerald-800/40 px-2 sm:px-3 py-1 rounded-full">
             {project.metrics}
           </span>
         </div>
       )}
       
-      <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
-        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+      <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 z-10">
+        <h3 className="text-base sm:text-lg md:text-xl font-bold text-white mb-1 sm:mb-2 group-hover:text-cyan-300 transition-colors">
           {project.title}
         </h3>
-        <p className="text-sm text-zinc-300 mb-4 line-clamp-2">
+        <p className="text-xs sm:text-sm text-zinc-300 mb-2 sm:mb-4 line-clamp-2">
           {project.desc}
         </p>
-        <div className="flex flex-wrap gap-2">
-          {project.stack.slice(0, 4).map((item, sIdx) => (
+        <div className="flex flex-wrap gap-1 sm:gap-2">
+          {project.stack.slice(0, 3).map((item, sIdx) => (
             <motion.span 
               key={sIdx}
               whileHover={{ scale: 1.1, y: -2 }}
-              className="text-[10px] font-mono px-2.5 py-1 rounded-lg bg-zinc-800/80 border border-zinc-700/50 text-zinc-300 hover:border-cyan-500/50 transition-all cursor-default backdrop-blur-sm"
+              className="text-[9px] sm:text-[10px] font-mono px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-zinc-800/80 border border-zinc-700/50 text-zinc-300 hover:border-cyan-500/50 transition-all cursor-default backdrop-blur-sm"
             >
               {item}
             </motion.span>
@@ -619,53 +617,53 @@ const ProjectCard = ({ project, index, featured = false }) => (
 );
 
 // ==========================================
-// 🎯 TIMELINE ITEM - PREMIUM
+// 🎯 TIMELINE ITEM
 // ==========================================
 const TimelineItem = ({ item, index, isLeft = false }) => {
   const IconComponent = item.icon;
   return (
     <motion.div
-      initial={{ opacity: 0, x: isLeft ? -30 : 30 }}
-      whileInView={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
-      className={`relative flex gap-6 mb-8 ${isLeft ? 'md:flex-row-reverse' : ''}`}
+      className="relative flex gap-3 sm:gap-6 mb-6 sm:mb-8"
     >
       <div className="flex-shrink-0 relative z-10">
         <motion.div
           whileInView={{ scale: [0, 1.2, 1] }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-cyan-500/30 border-2 border-zinc-900"
+          className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-cyan-500/30 border-2 border-zinc-900"
         >
-          <IconComponent className="w-6 h-6 text-white" />
+          <IconComponent className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
         </motion.div>
         {index > 0 && (
-          <div className="absolute top-14 left-1/2 -translate-x-1/2 w-0.5 h-[calc(100%+2rem)] bg-gradient-to-b from-cyan-500 via-cyan-500/50 to-transparent" />
+          <div className="absolute top-10 sm:top-14 left-1/2 -translate-x-1/2 w-0.5 h-[calc(100%+1.5rem)] bg-gradient-to-b from-cyan-500 via-cyan-500/50 to-transparent" />
         )}
       </div>
       
       <motion.div 
-        whileHover={{ scale: 1.02 }}
-        className="flex-1 p-6 rounded-2xl bg-zinc-900/60 backdrop-blur-sm border border-zinc-700/80 hover:border-cyan-500/50 transition-all duration-300"
+        whileHover={{ scale: 1.01 }}
+        className="flex-1 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-zinc-900/60 backdrop-blur-sm border border-zinc-700/80 hover:border-cyan-500/50 transition-all duration-300"
       >
-        <div className="flex items-center gap-3 mb-3">
-          <span className="text-xs font-mono text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/30">
+        <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 flex-wrap">
+          <span className="text-[10px] sm:text-xs font-mono text-cyan-400 bg-cyan-500/10 px-2 sm:px-3 py-1 rounded-full border border-cyan-500/30">
             {item.year}
           </span>
           {item.category && (
-            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">{item.category}</span>
+            <span className="text-[9px] sm:text-[10px] font-mono text-zinc-500 uppercase tracking-wider">{item.category}</span>
           )}
         </div>
-        <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-        <p className="text-sm text-zinc-400 leading-relaxed">{item.description}</p>
+        <h3 className="text-sm sm:text-base md:text-lg font-bold text-white mb-1 sm:mb-2">{item.title}</h3>
+        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">{item.description}</p>
       </motion.div>
     </motion.div>
   );
 };
 
 // ==========================================
-// 🎯 SKILL CARD - PREMIUM
+// 🎯 SKILL CARD
 // ==========================================
 const SkillCard = ({ category, index }) => {
   const IconComponent = category.icon;
@@ -684,26 +682,26 @@ const SkillCard = ({ category, index }) => {
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
       whileHover={{ y: -10 }}
-      className="p-6 rounded-3xl bg-zinc-900/40 backdrop-blur-sm border border-zinc-700/80 hover:border-cyan-500/50 transition-all duration-300 shadow-xl group relative overflow-hidden"
+      className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-zinc-900/40 backdrop-blur-sm border border-zinc-700/80 hover:border-cyan-500/50 transition-all duration-300 shadow-xl group relative overflow-hidden"
     >
-      <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br ${colors.glow} to-transparent blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-500`} />
+      <div className={`absolute -top-20 -right-20 w-32 sm:w-40 h-32 sm:h-40 rounded-full bg-gradient-to-br ${colors.glow} to-transparent blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-500`} />
       
       <div className="relative z-10">
-        <div className="flex items-center gap-3 mb-5">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
           <motion.div 
-            className={`w-12 h-12 rounded-xl ${colors.bg} ${colors.border} border flex items-center justify-center`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl ${colors.bg} ${colors.border} border flex items-center justify-center`}
             whileHover={{ rotate: 12, scale: 1.1 }}
             transition={{ duration: 0.3 }}
           >
-            <IconComponent className={`w-6 h-6 ${colors.text}`} />
+            <IconComponent className={`w-5 h-5 sm:w-6 sm:h-6 ${colors.text}`} />
           </motion.div>
           <div>
-            <h3 className="text-sm font-mono font-bold text-white uppercase tracking-wider">{category.title}</h3>
-            <p className="text-[10px] font-mono text-zinc-500">{category.skills.length} tools</p>
+            <h3 className="text-xs sm:text-sm font-mono font-bold text-white uppercase tracking-wider">{category.title}</h3>
+            <p className="text-[9px] sm:text-[10px] font-mono text-zinc-500">{category.skills.length} tools</p>
           </div>
         </div>
         
-        <ul className="space-y-2.5 text-xs text-zinc-400 font-mono">
+        <ul className="space-y-2 sm:space-y-2.5 text-[11px] sm:text-xs text-zinc-400 font-mono">
           {category.skills.map((skill, sIdx) => (
             <motion.li 
               key={sIdx}
@@ -738,7 +736,7 @@ const PremiumContactCard = ({ icon: Icon, label, value, href, gradient, iconColo
     transition={{ delay, duration: 0.5 }}
     whileHover={{ y: -4, scale: 1.02 }}
     whileTap={{ scale: 0.98 }}
-    className="group relative block p-[1px] rounded-2xl overflow-hidden transition-all duration-500"
+    className="group relative block p-[1px] rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-500"
   >
     <div className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-50 group-hover:opacity-100 transition-opacity duration-500`} />
     
@@ -748,18 +746,18 @@ const PremiumContactCard = ({ icon: Icon, label, value, href, gradient, iconColo
       transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2, ease: "linear" }}
     />
     
-    <div className="relative bg-zinc-950/95 backdrop-blur-xl rounded-2xl p-5 flex items-center gap-4 h-full">
-      <div className={`relative flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg`}>
-        <Icon className={`relative w-6 h-6 ${iconColor} group-hover:scale-110 group-hover:rotate-12 transition-all duration-500`} />
+    <div className="relative bg-zinc-950/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-5 flex items-center gap-3 sm:gap-4 h-full">
+      <div className={`relative flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg`}>
+        <Icon className={`relative w-5 h-5 sm:w-6 sm:h-6 ${iconColor} group-hover:scale-110 group-hover:rotate-12 transition-all duration-500`} />
       </div>
       
       <div className="flex-1 min-w-0">
-        <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-[0.2em] mb-1">{label}</p>
-        <p className="text-sm font-mono text-white font-bold truncate group-hover:text-cyan-300 transition-colors">{value}</p>
+        <p className="text-[9px] sm:text-[10px] font-mono text-zinc-500 uppercase tracking-[0.2em] mb-1">{label}</p>
+        <p className="text-xs sm:text-sm font-mono text-white font-bold truncate group-hover:text-cyan-300 transition-colors">{value}</p>
       </div>
       
       <motion.div 
-        className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block"
         animate={{ x: [0, 4, 0] }}
         transition={{ duration: 1.5, repeat: Infinity }}
       >
@@ -770,7 +768,7 @@ const PremiumContactCard = ({ icon: Icon, label, value, href, gradient, iconColo
 );
 
 // ==========================================
-// 🎯 ACHIEVEMENT CARD - PREMIUM
+// 🎯 ACHIEVEMENT CARD
 // ==========================================
 const AchievementCard = ({ achievement, index }) => {
   const IconComponent = achievement.icon;
@@ -788,28 +786,28 @@ const AchievementCard = ({ achievement, index }) => {
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
-      whileHover={{ y: -8, scale: 1.03 }}
-      className={`p-5 rounded-2xl bg-gradient-to-br ${colors.gradient} border ${colors.border} relative overflow-hidden group`}
+      whileHover={{ y: -6, scale: 1.02 }}
+      className={`p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-br ${colors.gradient} border ${colors.border} relative overflow-hidden group`}
     >
-      <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full ${colors.glow} blur-2xl opacity-30 group-hover:opacity-60 transition-opacity`} />
+      <div className={`absolute -top-10 -right-10 w-24 sm:w-32 h-24 sm:h-32 rounded-full ${colors.glow} blur-2xl opacity-30 group-hover:opacity-60 transition-opacity`} />
       
       <div className="relative z-10">
-        <div className="flex items-start gap-3 mb-3">
+        <div className="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
           <motion.div
             whileHover={{ rotate: 360, scale: 1.2 }}
             transition={{ duration: 0.6 }}
-            className={`p-2 rounded-xl bg-zinc-950/80 border ${colors.border}`}
+            className={`p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-zinc-950/80 border ${colors.border}`}
           >
-            <IconComponent className={`w-5 h-5 ${colors.text}`} />
+            <IconComponent className={`w-4 h-4 sm:w-5 sm:h-5 ${colors.text}`} />
           </motion.div>
           <div className="flex-1">
-            <h4 className="font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors">{achievement.title}</h4>
-            <p className="text-xs text-zinc-400 leading-relaxed">{achievement.desc}</p>
+            <h4 className="text-sm sm:text-base font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors">{achievement.title}</h4>
+            <p className="text-[10px] sm:text-xs text-zinc-400 leading-relaxed">{achievement.desc}</p>
           </div>
         </div>
-        <div className="flex items-center justify-between pt-3 border-t border-zinc-800/50">
-          <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">{achievement.category}</span>
-          <span className={`text-xs font-mono font-bold ${colors.text}`}>{achievement.year}</span>
+        <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-zinc-800/50">
+          <span className="text-[9px] sm:text-[10px] font-mono text-zinc-500 uppercase tracking-wider">{achievement.category}</span>
+          <span className={`text-[10px] sm:text-xs font-mono font-bold ${colors.text}`}>{achievement.year}</span>
         </div>
       </div>
     </motion.div>
@@ -817,7 +815,7 @@ const AchievementCard = ({ achievement, index }) => {
 };
 
 // ==========================================
-// 🎯 MILESTONE CARD - PREMIUM
+// 🎯 MILESTONE CARD
 // ==========================================
 const MilestoneCard = ({ milestone, index }) => {
   const colorMap = {
@@ -833,58 +831,58 @@ const MilestoneCard = ({ milestone, index }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
-      whileHover={{ y: -10 }}
-      className={`p-7 rounded-3xl border bg-gradient-to-b ${colors.gradient} ${colors.border} backdrop-blur-sm flex flex-col justify-between relative group shadow-2xl overflow-hidden`}
+      whileHover={{ y: -8 }}
+      className={`p-5 sm:p-7 rounded-2xl sm:rounded-3xl border bg-gradient-to-b ${colors.gradient} ${colors.border} backdrop-blur-sm flex flex-col justify-between relative group shadow-2xl overflow-hidden`}
     >
       <motion.div 
-        className="absolute top-4 right-4"
+        className="absolute top-3 right-3 sm:top-4 sm:right-4"
         animate={{ scale: [1, 1.1, 1] }}
         transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
       >
-        <Trophy className={`w-8 h-8 ${colors.text} opacity-50`} />
+        <Trophy className={`w-6 h-6 sm:w-8 sm:h-8 ${colors.text} opacity-50`} />
       </motion.div>
       
-      <div className="absolute -bottom-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br from-transparent to-white/5 blur-3xl" />
+      <div className="absolute -bottom-20 -right-20 w-32 sm:w-40 h-32 sm:h-40 rounded-full bg-gradient-to-br from-transparent to-white/5 blur-3xl" />
       
       <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-5">
+        <div className="flex items-center gap-2 mb-4 sm:mb-5 flex-wrap">
           <motion.span 
             whileHover={{ scale: 1.1 }}
-            className={`text-[10px] font-mono uppercase px-3 py-1.5 rounded-full border ${colors.badge} ${colors.text} font-bold`}
+            className={`text-[9px] sm:text-[10px] font-mono uppercase px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border ${colors.badge} ${colors.text} font-bold`}
           >
             {milestone.level}
           </motion.span>
-          <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-wider">{milestone.field}</span>
+          <span className="text-[8px] sm:text-[9px] font-mono text-zinc-500 uppercase tracking-wider">{milestone.field}</span>
         </div>
         
-        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+        <h3 className="text-base sm:text-lg md:text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
           {milestone.title}
         </h3>
-        <p className="text-xs font-mono text-zinc-400 mb-4">{milestone.event}</p>
-        <p className="text-sm text-zinc-300 leading-relaxed">{milestone.desc}</p>
+        <p className="text-[10px] sm:text-xs font-mono text-zinc-400 mb-3 sm:mb-4">{milestone.event}</p>
+        <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">{milestone.desc}</p>
       </div>
       
-      <div className="mt-6 pt-5 border-t border-zinc-800/80 relative z-10 flex items-center justify-between">
+      <div className="mt-5 sm:mt-6 pt-4 sm:pt-5 border-t border-zinc-800/80 relative z-10 flex items-center justify-between gap-2">
         <motion.a 
-          whileHover={{ scale: 1.05, x: 5 }}
+          whileHover={{ scale: 1.05, x: 3 }}
           whileTap={{ scale: 0.95 }}
           href={milestone.certUrl}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-xs font-mono text-cyan-300 border border-zinc-700/60 transition-all"
+          className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-[10px] sm:text-xs font-mono text-cyan-300 border border-zinc-700/60 transition-all"
         >
-          <FileText className="w-4 h-4" />
+          <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           <span>Sertifikat</span>
-          <ArrowUpRight className="w-4 h-4 ml-1" />
+          <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-0.5 sm:ml-1" />
         </motion.a>
-        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 flex-shrink-0" />
       </div>
     </motion.div>
   );
 };
 
 // ==========================================
-// 🎯 EXPERIENCE CARD - PREMIUM
+// 🎯 EXPERIENCE CARD
 // ==========================================
 const ExperienceCard = ({ experience, index }) => (
   <motion.div
@@ -892,29 +890,29 @@ const ExperienceCard = ({ experience, index }) => (
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ delay: index * 0.1 }}
-    whileHover={{ y: -8, scale: 1.01 }}
-    className="p-8 rounded-3xl bg-gradient-to-br from-purple-500/10 via-zinc-900/50 to-transparent border border-zinc-700/80 hover:border-purple-500/50 shadow-2xl group relative overflow-hidden"
+    whileHover={{ y: -6, scale: 1.01 }}
+    className="p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-purple-500/10 via-zinc-900/50 to-transparent border border-zinc-700/80 hover:border-purple-500/50 shadow-2xl group relative overflow-hidden"
   >
-    <div className="absolute top-0 right-0 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl -mr-24 -mt-24 group-hover:scale-150 transition-transform duration-700" />
+    <div className="absolute top-0 right-0 w-32 sm:w-48 h-32 sm:h-48 bg-purple-500/10 rounded-full blur-3xl -mr-16 -mt-16 sm:-mr-24 sm:-mt-24 group-hover:scale-150 transition-transform duration-700" />
     
     <div className="relative z-10">
-      <div className="flex items-start justify-between mb-4 flex-wrap gap-3">
-        <div>
-          <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
+      <div className="flex items-start justify-between mb-3 sm:mb-4 flex-wrap gap-2 sm:gap-3">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 sm:mb-2 group-hover:text-purple-300 transition-colors">
             {experience.company}
           </h3>
-          <p className="text-purple-400 text-sm font-mono">{experience.position}</p>
+          <p className="text-purple-400 text-xs sm:text-sm font-mono">{experience.position}</p>
         </div>
-        <span className="text-zinc-500 text-sm font-mono px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-700/50">
+        <span className="text-zinc-500 text-[10px] sm:text-sm font-mono px-2 sm:px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-700/50 whitespace-nowrap">
           {experience.period}
         </span>
       </div>
-      <p className="text-zinc-300 text-sm leading-relaxed">{experience.description}</p>
+      <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">{experience.description}</p>
       
       {experience.skills && (
-        <div className="flex flex-wrap gap-2 mt-4">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-3 sm:mt-4">
           {experience.skills.map((skill, i) => (
-            <span key={i} className="px-3 py-1 rounded-lg bg-purple-500/10 border border-purple-500/30 text-xs font-mono text-purple-300">
+            <span key={i} className="px-2 sm:px-3 py-1 rounded-md sm:rounded-lg bg-purple-500/10 border border-purple-500/30 text-[10px] sm:text-xs font-mono text-purple-300">
               {skill}
             </span>
           ))}
@@ -925,7 +923,7 @@ const ExperienceCard = ({ experience, index }) => (
 );
 
 // ==========================================
-// 🎯 EDUCATION CARD - PREMIUM
+// 🎯 EDUCATION CARD
 // ==========================================
 const EducationCard = ({ education, index }) => (
   <motion.div
@@ -933,24 +931,24 @@ const EducationCard = ({ education, index }) => (
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ delay: index * 0.1 }}
-    whileHover={{ y: -8, scale: 1.02 }}
-    className={`p-8 rounded-3xl bg-gradient-to-br ${education.gradient} border ${education.border} shadow-2xl group relative overflow-hidden`}
+    whileHover={{ y: -6, scale: 1.01 }}
+    className={`p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br ${education.gradient} border ${education.border} shadow-2xl group relative overflow-hidden`}
   >
-    <div className={`absolute top-0 right-0 w-48 h-48 ${education.glow} rounded-full blur-3xl -mr-24 -mt-24 group-hover:scale-150 transition-transform duration-700`} />
+    <div className={`absolute top-0 right-0 w-32 sm:w-48 h-32 sm:h-48 ${education.glow} rounded-full blur-3xl -mr-16 -mt-16 sm:-mr-24 sm:-mt-24 group-hover:scale-150 transition-transform duration-700`} />
     
     <div className="relative z-10">
-      <div className="flex items-center justify-between text-xs font-mono mb-4">
+      <div className="flex items-center justify-between text-[10px] sm:text-xs font-mono mb-3 sm:mb-4 flex-wrap gap-2">
         <span className={`${education.accent} font-bold uppercase tracking-wider`}>{education.level}</span>
         <span className="text-zinc-500">{education.period}</span>
       </div>
       
-      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+      <h3 className="text-base sm:text-lg md:text-xl font-bold text-white mb-1 sm:mb-2 group-hover:text-cyan-300 transition-colors">
         {education.institution}
       </h3>
-      <p className="text-xs text-zinc-400 font-mono mb-4">{education.program}</p>
-      <p className="text-sm text-zinc-300 leading-relaxed">{education.description}</p>
+      <p className="text-[10px] sm:text-xs text-zinc-400 font-mono mb-2 sm:mb-4">{education.program}</p>
+      <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">{education.description}</p>
       
-      <div className="mt-6 pt-4 border-t border-zinc-800/80 flex items-center gap-2 text-[11px] font-mono text-zinc-500">
+      <div className="mt-5 sm:mt-6 pt-3 sm:pt-4 border-t border-zinc-800/80 flex items-center gap-2 text-[10px] sm:text-[11px] font-mono text-zinc-500">
         <motion.div 
           animate={{ scale: [1, 1.3, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
@@ -963,7 +961,7 @@ const EducationCard = ({ education, index }) => (
 );
 
 // ==========================================
-// 🎯 CODE SNIPPET - PREMIUM
+// 🎯 CODE SNIPPET
 // ==========================================
 const CodeSnippet = ({ snippet, index }) => {
   const [copied, setCopied] = useState(false);
@@ -980,17 +978,17 @@ const CodeSnippet = ({ snippet, index }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
-      className="rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800 shadow-xl group"
+      className="rounded-xl sm:rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800 shadow-xl group"
     >
-      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-zinc-900 to-zinc-900/50 border-b border-zinc-800">
-        <div className="flex items-center gap-3">
-          <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <div className="w-3 h-3 rounded-full bg-amber-500" />
-            <div className="w-3 h-3 rounded-full bg-emerald-500" />
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-zinc-900 to-zinc-900/50 border-b border-zinc-800">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <div className="flex gap-1 sm:gap-1.5">
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500" />
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-500" />
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500" />
           </div>
-          <span className="text-xs font-mono text-zinc-400">{snippet.title}</span>
-          <span className="text-[10px] font-mono text-cyan-400 px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/30">
+          <span className="text-[10px] sm:text-xs font-mono text-zinc-400">{snippet.title}</span>
+          <span className="text-[9px] sm:text-[10px] font-mono text-cyan-400 px-1.5 sm:px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/30">
             {snippet.language}
           </span>
         </div>
@@ -998,17 +996,17 @@ const CodeSnippet = ({ snippet, index }) => {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={handleCopy}
-          className="p-1.5 rounded hover:bg-zinc-800 transition-colors"
+          className="p-1 sm:p-1.5 rounded hover:bg-zinc-800 transition-colors flex-shrink-0"
         >
           {copied ? (
-            <Check className="w-4 h-4 text-emerald-400" />
+            <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
           ) : (
-            <Copy className="w-4 h-4 text-zinc-400" />
+            <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400" />
           )}
         </motion.button>
       </div>
       
-      <pre className="p-5 overflow-x-auto text-xs font-mono leading-relaxed">
+      <pre className="p-3 sm:p-5 overflow-x-auto text-[10px] sm:text-xs font-mono leading-relaxed">
         <code className="text-zinc-300 whitespace-pre">{snippet.code}</code>
       </pre>
     </motion.div>
@@ -1016,7 +1014,7 @@ const CodeSnippet = ({ snippet, index }) => {
 };
 
 // ==========================================
-// 🎯 TERMINAL SIMULATOR - FIXED (NO AUTO-SCROLL)
+// 🎯 TERMINAL SIMULATOR
 // ==========================================
 const TerminalSimulator = () => {
   const [input, setInput] = useState('');
@@ -1028,7 +1026,6 @@ const TerminalSimulator = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: false, amount: 0.5 });
   
-  // Hanya focus saat Terminal masuk viewport
   useEffect(() => {
     if (isInView && inputRef.current) {
       inputRef.current.focus();
@@ -1074,45 +1071,45 @@ const TerminalSimulator = () => {
   };
   
   return (
-    <div ref={sectionRef} className="rounded-2xl bg-zinc-950 border-2 border-zinc-800 overflow-hidden shadow-2xl">
-      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-zinc-900 to-zinc-900/50 border-b border-zinc-800">
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <div className="w-3 h-3 rounded-full bg-amber-500" />
-            <div className="w-3 h-3 rounded-full bg-emerald-500" />
+    <div ref={sectionRef} className="rounded-xl sm:rounded-2xl bg-zinc-950 border-2 border-zinc-800 overflow-hidden shadow-2xl">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-zinc-900 to-zinc-900/50 border-b border-zinc-800">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="flex gap-1 sm:gap-1.5">
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500" />
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-500" />
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500" />
           </div>
-          <span className="text-xs font-mono text-zinc-400 ml-2">nabilli@robotics: ~</span>
+          <span className="text-[10px] sm:text-xs font-mono text-zinc-400 ml-1 sm:ml-2">nabilli@robotics: ~</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <motion.span 
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 1.5, repeat: Infinity }}
-            className="text-[10px] font-mono text-emerald-400 flex items-center gap-1"
+            className="text-[9px] sm:text-[10px] font-mono text-emerald-400 flex items-center gap-1"
           >
-            <Zap className="w-3 h-3" />
-            ONLINE
+            <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+            <span className="hidden sm:inline">ONLINE</span>
           </motion.span>
         </div>
       </div>
       
-      <div className="p-4 font-mono text-xs h-80 overflow-y-auto space-y-1">
+      <div className="p-3 sm:p-4 font-mono text-[10px] sm:text-xs h-64 sm:h-80 overflow-y-auto space-y-1">
         {history.map((entry, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.05 }}
-            className={`flex items-start gap-2 ${
+            className={`flex items-start gap-1.5 sm:gap-2 ${
               entry.type === 'user' ? 'text-cyan-400' : 'text-zinc-300'
             }`}
           >
             {entry.type === 'system' && <span className="text-emerald-400 select-none">$</span>}
-            <span className="flex-1">{entry.text}</span>
+            <span className="flex-1 break-words">{entry.text}</span>
           </motion.div>
         ))}
         
-        <div className="flex items-center gap-2 pt-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 pt-2">
           <span className="text-emerald-400 font-bold">$</span>
           <input
             ref={inputRef}
@@ -1120,13 +1117,13 @@ const TerminalSimulator = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleCommand}
-            className="flex-1 bg-transparent outline-none text-white font-mono"
+            className="flex-1 bg-transparent outline-none text-white font-mono min-w-0"
             placeholder="Type a command..."
           />
           <motion.span 
             animate={{ opacity: [1, 0] }}
             transition={{ duration: 0.8, repeat: Infinity }}
-            className="w-2 h-4 bg-cyan-400"
+            className="w-1.5 sm:w-2 h-3 sm:h-4 bg-cyan-400 flex-shrink-0"
           />
         </div>
       </div>
@@ -1135,7 +1132,7 @@ const TerminalSimulator = () => {
 };
 
 // ==========================================
-// 📊 DATA CONSTANTS (UPDATED 2026)
+// 📊 DATA CONSTANTS
 // ==========================================
 
 const MILESTONES = [
@@ -1618,43 +1615,41 @@ export default function MainContent() {
     setTimeout(() => setCopiedEmail(false), 2000);
   };
 
- const handleFormSubmit = async (e) => {
-  e.preventDefault();
-  setIsSubmitting(true);
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-  // Ambil credentials dari .env
-  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-  // Validasi env variables
-  if (!serviceId || !templateId || !publicKey) {
-    console.error("❌ EmailJS env variables belum diset! Cek file .env dan restart dev server.");
-    alert("Konfigurasi email belum siap. Hubungi via WhatsApp ya!");
-    setIsSubmitting(false);
-    return;
-  }
+    if (!serviceId || !templateId || !publicKey) {
+      console.error("❌ EmailJS env variables belum diset! Cek file .env dan restart dev server.");
+      alert("Konfigurasi email belum siap. Hubungi via WhatsApp ya!");
+      setIsSubmitting(false);
+      return;
+    }
 
-  const templateParams = {
-    name: formData.name,
-    email: formData.email,
-    message: formData.message,
-    to_email: "nabillirizky5@gmail.com",
-    reply_to: formData.email
+    const templateParams = {
+      name: formData.name,
+      email: formData.email,
+      message: formData.message,
+      to_email: "nabillirizky5@gmail.com",
+      reply_to: formData.email
+    };
+
+    try {
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+      setFormSent(true);
+      setFormData({ name: '', email: '', message: '' });
+      setTimeout(() => setFormSent(false), 5000);
+    } catch (error) {
+      console.error("Gagal mengirim email:", error);
+      alert("Gagal mengirim pesan. Silakan coba lagi atau hubungi via WhatsApp.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
-  try {
-    await emailjs.send(serviceId, templateId, templateParams, publicKey);
-    setFormSent(true);
-    setFormData({ name: '', email: '', message: '' });
-    setTimeout(() => setFormSent(false), 5000);
-  } catch (error) {
-    console.error("Gagal mengirim email:", error);
-    alert("Gagal mengirim pesan. Silakan coba lagi atau hubungi via WhatsApp.");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
 
   const filteredProjects = useMemo(() => 
     activeTab === 'all' ? PROJECTS : PROJECTS.filter(p => p.category === activeTab),
@@ -1662,19 +1657,7 @@ export default function MainContent() {
   );
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-      className="min-h-screen bg-[#060709] text-zinc-100 font-sans selection:bg-cyan-500/30 relative overflow-x-hidden"
-    >
-      {/* 🛡️ GLOBAL CURSOR FIX */}
-      <style>{`
-        html, body { cursor: none !important; }
-        * { cursor: none !important; }
-        input, textarea { cursor: text !important; }
-      `}</style>
-      
+    <div className="min-h-screen bg-[#060709] text-zinc-100 font-sans selection:bg-cyan-500/30 relative overflow-x-hidden">
       <CustomCursor />
       <ParticleBackground />
       
@@ -1684,35 +1667,35 @@ export default function MainContent() {
         style={{ scaleX }} 
       />
       
-      {/* Grid Background - STATIC */}
+      {/* Grid Background */}
       <div 
         className="fixed inset-0 pointer-events-none opacity-[0.03] z-0"
         style={{ 
           backgroundImage: `linear-gradient(to right, rgb(34, 211, 238) 1px, transparent 1px), linear-gradient(to bottom, rgb(34, 211, 238) 1px, transparent 1px)`, 
-          backgroundSize: '48px 48px' 
+          backgroundSize: '32px 32px' 
         }} 
       />
       
       {/* Static Glow Orbs */}
-      <GlowOrb color="cyan" size="lg" position="-top-40 -left-40" />
-      <GlowOrb color="emerald" size="lg" position="top-1/2 -right-40" />
-      <GlowOrb color="purple" size="md" position="bottom-0 left-1/3" />
+      <GlowOrb color="cyan" size="lg" position="-top-20 sm:-top-40 -left-20 sm:-left-40" />
+      <GlowOrb color="emerald" size="lg" position="top-1/2 -right-20 sm:-right-40" />
+      <GlowOrb color="purple" size="md" position="bottom-0 left-1/4 sm:left-1/3" />
 
       {/* NAVBAR */}
-      <nav className="sticky top-0 z-40 backdrop-blur-xl bg-[#060709]/90 border-b border-zinc-800/80 px-6 py-4">
+      <nav className="sticky top-0 z-40 backdrop-blur-xl bg-[#060709]/90 border-b border-zinc-800/80 px-4 sm:px-6 py-3 sm:py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <a href="#about" className="flex items-center gap-3 group">
+          <a href="#about" className="flex items-center gap-2 sm:gap-3 group">
             <motion.div 
-              className="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]" 
+              className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]" 
               animate={{ scale: [1, 1.3, 1] }} 
               transition={{ duration: 1.5, repeat: Infinity }} 
             />
-            <span className="font-mono text-sm font-bold tracking-wider text-zinc-200 uppercase group-hover:text-cyan-400 transition-colors">
+            <span className="font-mono text-xs sm:text-sm font-bold tracking-wider text-zinc-200 uppercase group-hover:text-cyan-400 transition-colors">
               NABILLI RIZKY
             </span>
           </a>
           
-          <div className="hidden md:flex items-center gap-8 text-xs font-mono text-zinc-400">
+          <div className="hidden md:flex items-center gap-6 lg:gap-8 text-xs font-mono text-zinc-400">
             {['about', 'education', 'experience', 'milestones', 'projects', 'skills', 'contact'].map(sec => (
               <a 
                 key={sec} 
@@ -1727,9 +1710,9 @@ export default function MainContent() {
           
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-zinc-400"
+            className="md:hidden p-2 text-zinc-400 hover:text-cyan-400 transition-colors"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
         
@@ -1739,53 +1722,53 @@ export default function MainContent() {
               initial={{ opacity: 0, height: 0 }} 
               animate={{ opacity: 1, height: "auto" }} 
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden mt-4 pt-4 border-t border-zinc-800"
+              className="md:hidden mt-3 pt-3 border-t border-zinc-800"
             >
-              {['about', 'education', 'experience', 'milestones', 'projects', 'skills', 'contact'].map(sec => (
-                <a 
-                  key={sec} 
-                  href={`#${sec}`} 
-                  onClick={() => setMobileMenuOpen(false)} 
-                  className="block py-3 text-sm text-zinc-300 hover:text-cyan-400 capitalize"
-                >
-                  {sec}
-                </a>
-              ))}
+              <div className="grid grid-cols-2 gap-1">
+                {['about', 'education', 'experience', 'milestones', 'projects', 'skills', 'contact'].map(sec => (
+                  <a 
+                    key={sec} 
+                    href={`#${sec}`} 
+                    onClick={() => setMobileMenuOpen(false)} 
+                    className="block py-2.5 px-3 text-sm text-zinc-300 hover:text-cyan-400 hover:bg-zinc-900/50 capitalize rounded-lg transition-colors"
+                  >
+                    {sec}
+                  </a>
+                ))}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
       </nav>
 
-      <main className="relative max-w-7xl mx-auto px-6 py-12 md:py-20 space-y-32 z-10">
+      <main className="relative max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-20 space-y-16 md:space-y-32 z-10">
         
-        {/* ========================================== */}
         {/* HERO SECTION */}
-        {/* ========================================== */}
-        <section id="about" className="pt-8 space-y-12 relative">
-          <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-16">
+        <section id="about" className="pt-4 sm:pt-8 space-y-8 sm:space-y-12 relative">
+          <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-8 lg:gap-16">
             <motion.div 
               initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, ease: "easeOut" }}
-              className="space-y-8 flex-1 text-center lg:text-left"
+              className="space-y-5 sm:space-y-8 flex-1 text-center lg:text-left"
             >
               <motion.div 
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/80 backdrop-blur-sm border border-zinc-700 text-xs font-mono text-cyan-400"
+                className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-zinc-900/80 backdrop-blur-sm border border-zinc-700 text-[10px] sm:text-xs font-mono text-cyan-400"
                 whileHover={{ scale: 1.05 }}
               >
-                <Radio className="w-3.5 h-3.5 animate-pulse" />
+                <Radio className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-pulse" />
                 <span>Open for Robotics, Embedded & Industrial Automation</span>
               </motion.div>
               
-              <div className="space-y-4">
-                <TextReveal className="text-5xl sm:text-7xl font-black tracking-tight text-white">
+              <div className="space-y-2 sm:space-y-4">
+                <TextReveal className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.1]">
                   Nabilli Rizky
                 </TextReveal>
-                <div className="flex items-center justify-center lg:justify-start text-base sm:text-xl font-mono text-zinc-400">
+                <div className="flex items-center justify-center lg:justify-start text-xs sm:text-sm md:text-base lg:text-xl font-mono text-zinc-400">
                   <span className="text-cyan-400 font-bold mr-2">&gt;</span>
                   <span className="text-zinc-200">Mobile Robotics Engineer</span>
                   <motion.span 
-                    className="w-2 h-7 bg-cyan-400 ml-1"
+                    className="w-1.5 sm:w-2 h-5 sm:h-6 md:h-7 bg-cyan-400 ml-1"
                     animate={{ opacity: [1, 0] }}
                     transition={{ duration: 0.8, repeat: Infinity }}
                   />
@@ -1793,7 +1776,7 @@ export default function MainContent() {
               </div>
               
               <motion.p 
-                className="text-zinc-400 max-w-2xl text-sm sm:text-base leading-relaxed mx-auto lg:mx-0"
+                className="text-zinc-400 max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed mx-auto lg:mx-0"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
@@ -1802,54 +1785,59 @@ export default function MainContent() {
               </motion.p>
               
               <motion.div 
-                className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-4"
+                className="flex flex-col sm:flex-row flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-3 pt-3 sm:pt-4"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
               >
-                {SOCIAL_LINKS.map(({ href, icon: Icon, color }, idx) => (
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 w-full sm:w-auto">
+                  {SOCIAL_LINKS.map(({ href, icon: Icon, color }, idx) => (
+                    <MagneticButton 
+                      key={idx} 
+                      className={`p-2.5 sm:p-3 rounded-xl bg-zinc-900/80 backdrop-blur-sm border border-zinc-700 text-zinc-300 ${color} transition-all shadow-lg hover:border-cyan-500/50`}
+                    >
+                      <a href={href} target="_blank" rel="noreferrer" className="block">
+                        <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </a>
+                    </MagneticButton>
+                  ))}
+                </div>
+                
+                <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
                   <MagneticButton 
-                    key={idx} 
-                    className={`p-3 rounded-xl bg-zinc-900/80 backdrop-blur-sm border border-zinc-700 text-zinc-300 ${color} transition-all shadow-lg hover:border-cyan-500/50`}
+                    onClick={copyEmail}
+                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-zinc-900/80 backdrop-blur-sm border border-zinc-700 text-[11px] sm:text-xs font-mono text-zinc-300 flex items-center justify-center gap-1.5 sm:gap-2 hover:border-cyan-500/50 transition-all"
                   >
-                    <a href={href} target="_blank" rel="noreferrer" className="block">
-                      <Icon className="w-5 h-5" />
+                    {copiedEmail ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                    <span>{copiedEmail ? "Tersalin!" : "Copy Email"}</span>
+                  </MagneticButton>
+                  
+                  <MagneticButton 
+                    className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-black font-bold text-[11px] sm:text-xs font-mono shadow-xl"
+                  >
+                    <a href="/cv-nabilli.pdf" download className="flex items-center justify-center gap-1.5 sm:gap-2">
+                      <Download className="w-4 h-4" />
+                      <span>Resume / CV</span>
                     </a>
                   </MagneticButton>
-                ))}
-                
-                <MagneticButton 
-                  onClick={copyEmail}
-                  className="px-4 py-3 rounded-xl bg-zinc-900/80 backdrop-blur-sm border border-zinc-700 text-xs font-mono text-zinc-300 flex items-center gap-2 hover:border-cyan-500/50 transition-all"
-                >
-                  {copiedEmail ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                  <span>{copiedEmail ? "Tersalin!" : "Copy Email"}</span>
-                </MagneticButton>
-                
-                <MagneticButton 
-                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-black font-bold text-xs font-mono shadow-xl"
-                >
-                  <a href="/cv-nabilli.pdf" download className="flex items-center gap-2">
-                    <Download className="w-4 h-4" />
-                    <span>Resume / CV</span>
-                  </a>
-                </MagneticButton>
+                </div>
               </motion.div>
             </motion.div>
 
-            {/* PROFILE PHOTO - STATIC GLOW */}
+            {/* PROFILE PHOTO */}
             <motion.div 
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className="relative group"
+              className="relative group flex-shrink-0"
             >
-              <FloatingElement duration={6} distance={20}>
+              <FloatingElement duration={6} distance={15}>
                 <div className="relative">
-                  <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500 via-emerald-500 to-cyan-500 rounded-full blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
-                  <div className="relative w-72 h-72 sm:w-80 sm:h-80 rounded-full bg-zinc-900 border-4 border-zinc-700 overflow-hidden shadow-2xl group-hover:border-cyan-500/50 transition-all duration-500">
+                  <div className="absolute -inset-3 sm:-inset-4 bg-gradient-to-r from-cyan-500 via-emerald-500 to-cyan-500 rounded-full blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
+                  <div className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 rounded-full bg-zinc-900 border-4 border-zinc-700 overflow-hidden shadow-2xl group-hover:border-cyan-500/50 transition-all duration-500">
                     <img 
                       src="/foto.jpeg"
+                      loading="lazy"
                       alt="Nabilli Rizky"
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
                       onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800"; }}
@@ -1857,20 +1845,20 @@ export default function MainContent() {
                   </div>
                   
                   <motion.div 
-                    className="absolute -bottom-4 left-1/2 -translate-x-1/2 p-3 rounded-xl bg-zinc-950/95 backdrop-blur-md border border-zinc-700 text-[11px] font-mono flex items-center justify-between text-zinc-300 whitespace-nowrap shadow-2xl"
+                    className="absolute -bottom-3 sm:-bottom-4 left-1/2 -translate-x-1/2 p-2 sm:p-3 rounded-lg sm:rounded-xl bg-zinc-950/95 backdrop-blur-md border border-zinc-700 text-[10px] sm:text-[11px] font-mono flex items-center justify-between text-zinc-300 whitespace-nowrap shadow-2xl"
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.5 }}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                       <motion.span 
-                        className="w-2 h-2 rounded-full bg-emerald-400"
+                        className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400"
                         animate={{ scale: [1, 1.3, 1] }}
                         transition={{ duration: 1, repeat: Infinity }}
                       />
                       <span>Robotics Dev</span>
                     </div>
-                    <span className="text-zinc-500 ml-3">UPI • SMKN 39</span>
+                    <span className="text-zinc-500 ml-2 sm:ml-3">UPI • SMKN 39</span>
                   </motion.div>
                 </div>
               </FloatingElement>
@@ -1883,7 +1871,7 @@ export default function MainContent() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-5 pt-8"
+            className="grid grid-cols-2 gap-2 sm:gap-5 pt-6 sm:pt-8"
           >
             <StatCard 
               icon={MapPin}
@@ -1923,24 +1911,24 @@ export default function MainContent() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="pt-12"
+            className="pt-8 sm:pt-12"
           >
-            <h3 className="text-center text-xs font-mono text-zinc-500 uppercase tracking-[0.2em] mb-6">
+            <h3 className="text-center text-[10px] sm:text-xs font-mono text-zinc-500 uppercase tracking-[0.2em] mb-4 sm:mb-6">
               Tech Stack & Tools
             </h3>
             <div className="relative">
-              <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#060709] to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#060709] to-transparent z-10 pointer-events-none" />
-              <Marquee speed={40} className="py-4">
+              <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-r from-[#060709] to-transparent z-10 pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-l from-[#060709] to-transparent z-10 pointer-events-none" />
+              <Marquee speed={40} className="py-2 sm:py-4">
                 {TECH_STACK.map((tech, idx) => {
                   const IconComponent = tech.icon;
                   return (
                     <div 
                       key={idx}
-                      className="flex items-center gap-3 px-6 py-3 rounded-xl bg-zinc-900/60 border border-zinc-700/80 hover:border-cyan-500/50 transition-all group"
+                      className="flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-zinc-900/60 border border-zinc-700/80 hover:border-cyan-500/50 transition-all group"
                     >
-                      <IconComponent className="w-6 h-6 text-zinc-400 group-hover:text-cyan-400 transition-colors" />
-                      <span className="text-sm font-mono text-zinc-300 group-hover:text-white transition-colors whitespace-nowrap">
+                      <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 text-zinc-400 group-hover:text-cyan-400 transition-colors flex-shrink-0" />
+                      <span className="text-xs sm:text-sm font-mono text-zinc-300 group-hover:text-white transition-colors whitespace-nowrap">
                         {tech.name}
                       </span>
                     </div>
@@ -1951,16 +1939,14 @@ export default function MainContent() {
           </motion.div>
         </section>
 
-        {/* ========================================== */}
         {/* EDUCATION */}
-        {/* ========================================== */}
         <motion.section 
           id="education"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
           variants={fadeInUp}
-          className="space-y-8"
+          className="space-y-6 sm:space-y-8"
         >
           <SectionHeading 
             icon={GraduationCap}
@@ -1970,23 +1956,21 @@ export default function MainContent() {
             badge="Education"
           />
           
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
             {EDUCATION.map((edu, idx) => (
               <EducationCard key={idx} education={edu} index={idx} />
             ))}
           </div>
         </motion.section>
 
-        {/* ========================================== */}
         {/* EXPERIENCE */}
-        {/* ========================================== */}
         <motion.section 
           id="experience"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
           variants={fadeInUp}
-          className="space-y-8"
+          className="space-y-6 sm:space-y-8"
         >
           <SectionHeading 
             icon={Briefcase}
@@ -1996,23 +1980,21 @@ export default function MainContent() {
             badge="Experience"
           />
           
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {EXPERIENCE.map((exp, idx) => (
               <ExperienceCard key={idx} experience={exp} index={idx} />
             ))}
           </div>
         </motion.section>
 
-        {/* ========================================== */}
         {/* MILESTONES */}
-        {/* ========================================== */}
         <motion.section 
           id="milestones"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
           variants={staggerContainer}
-          className="space-y-8"
+          className="space-y-6 sm:space-y-8"
         >
           <SectionHeading 
             icon={Trophy}
@@ -2022,31 +2004,30 @@ export default function MainContent() {
             badge="Achievements"
           />
           
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
             {MILESTONES.map((milestone, idx) => (
               <MilestoneCard key={idx} milestone={milestone} index={idx} />
             ))}
           </div>
 
-          {/* WALL OF ACHIEVEMENTS */}
           <motion.div 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="mt-16"
+            className="mt-10 sm:mt-16"
           >
-            <div className="flex items-center gap-4 mb-8">
+            <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
               <motion.div 
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.6 }}
-                className="p-3 rounded-2xl bg-gradient-to-br from-zinc-900 to-zinc-800 border border-zinc-700"
+                className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-br from-zinc-900 to-zinc-800 border border-zinc-700"
               >
-                <Medal className="w-6 h-6 text-amber-400" />
+                <Medal className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
               </motion.div>
-              <h3 className="text-2xl md:text-3xl font-bold text-white">Wall of Achievements</h3>
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Wall of Achievements</h3>
             </div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {ACHIEVEMENTS.map((ach, idx) => (
                 <AchievementCard key={idx} achievement={ach} index={idx} />
               ))}
@@ -2054,15 +2035,13 @@ export default function MainContent() {
           </motion.div>
         </motion.section>
 
-        {/* ========================================== */}
         {/* TIMELINE */}
-        {/* ========================================== */}
         <motion.section 
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
           variants={fadeInUp}
-          className="space-y-8"
+          className="space-y-6 sm:space-y-8"
         >
           <SectionHeading 
             icon={Sparkles}
@@ -2084,16 +2063,14 @@ export default function MainContent() {
           </div>
         </motion.section>
 
-        {/* ========================================== */}
         {/* PROJECTS */}
-        {/* ========================================== */}
         <motion.section 
           id="projects"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.15 }}
           variants={fadeInUp}
-          className="space-y-8"
+          className="space-y-6 sm:space-y-8"
         >
           <SectionHeading 
             icon={Layers}
@@ -2103,15 +2080,14 @@ export default function MainContent() {
             badge="Projects"
           />
           
-          {/* Filter Tabs */}
-          <div className="flex flex-wrap gap-2 justify-center">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center">
             {['all', 'autonomous', 'embedded', 'vision'].map(tab => (
               <motion.button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`px-6 py-2.5 rounded-xl capitalize font-mono text-sm transition-all duration-300 ${
+                className={`px-3 sm:px-6 py-2 sm:py-2.5 rounded-lg sm:rounded-xl capitalize font-mono text-xs sm:text-sm transition-all duration-300 ${
                   activeTab === tab 
                     ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-black font-bold shadow-lg shadow-cyan-500/30' 
                     : 'text-zinc-400 bg-zinc-900/60 border border-zinc-700/80 hover:text-white hover:border-cyan-500/50'
@@ -2122,8 +2098,7 @@ export default function MainContent() {
             ))}
           </div>
           
-          {/* Projects Grid */}
-          <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <AnimatePresence mode="popLayout">
               {filteredProjects.map((proj, idx) => (
                 <ProjectCard 
@@ -2137,15 +2112,13 @@ export default function MainContent() {
           </motion.div>
         </motion.section>
 
-        {/* ========================================== */}
         {/* CODE SNIPPETS */}
-        {/* ========================================== */}
         <motion.section 
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
           variants={fadeInUp}
-          className="space-y-8"
+          className="space-y-6 sm:space-y-8"
         >
           <SectionHeading 
             icon={Terminal}
@@ -2155,22 +2128,20 @@ export default function MainContent() {
             badge="Code"
           />
           
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
             {CODE_SNIPPETS.map((snippet, idx) => (
               <CodeSnippet key={idx} snippet={snippet} index={idx} />
             ))}
           </div>
         </motion.section>
 
-        {/* ========================================== */}
         {/* TERMINAL SIMULATOR */}
-        {/* ========================================== */}
         <motion.section 
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
           variants={fadeInUp}
-          className="space-y-8"
+          className="space-y-6 sm:space-y-8"
         >
           <SectionHeading 
             icon={Activity}
@@ -2182,22 +2153,20 @@ export default function MainContent() {
           
           <div className="max-w-4xl mx-auto">
             <TerminalSimulator />
-            <p className="text-xs font-mono text-zinc-500 mt-4 text-center">
+            <p className="text-[10px] sm:text-xs font-mono text-zinc-500 mt-3 sm:mt-4 text-center px-2">
               💡 Tips: Coba ketik "help", "about", "skills", "projects", "contact", atau "clear"
             </p>
           </div>
         </motion.section>
 
-        {/* ========================================== */}
         {/* SKILLS */}
-        {/* ========================================== */}
         <motion.section 
           id="skills"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
           variants={staggerContainer}
-          className="space-y-8"
+          className="space-y-6 sm:space-y-8"
         >
           <SectionHeading 
             icon={Wrench}
@@ -2207,41 +2176,39 @@ export default function MainContent() {
             badge="Skills"
           />
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
             {TECHNICAL_SKILLS.map((cat, idx) => (
               <SkillCard key={idx} category={cat} index={idx} />
             ))}
           </div>
         </motion.section>
 
-        {/* ========================================== */}
         {/* CONTACT */}
-        {/* ========================================== */}
         <motion.section 
           id="contact"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
           variants={fadeInUp}
-          className="relative space-y-12 py-16"
+          className="relative space-y-8 sm:space-y-12 py-10 sm:py-16"
         >
           <div className="absolute inset-0 -z-10">
             <GlowOrb color="cyan" size="md" position="top-0 left-1/4" />
             <GlowOrb color="emerald" size="md" position="bottom-0 right-1/4" />
           </div>
 
-          <div className="text-center space-y-4 max-w-3xl mx-auto">
+          <div className="text-center space-y-3 sm:space-y-4 max-w-3xl mx-auto px-2">
             <motion.div 
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 border border-cyan-500/30"
+              className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 border border-cyan-500/30"
             >
-              <Sparkles className="w-4 h-4 text-cyan-400" />
-              <span className="text-xs font-mono text-cyan-300 uppercase tracking-[0.2em]">Let's Connect</span>
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+              <span className="text-[10px] sm:text-xs font-mono text-cyan-300 uppercase tracking-[0.2em]">Let's Connect</span>
             </motion.div>
             
-            <TextReveal className="text-4xl md:text-6xl font-black text-white">
+            <TextReveal className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white">
               Mari Berkolaborasi
             </TextReveal>
             
@@ -2250,7 +2217,7 @@ export default function MainContent() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-lg text-zinc-400 leading-relaxed"
+              className="text-sm sm:text-base md:text-lg text-zinc-400 leading-relaxed"
             >
               Punya ide proyek robotika, riset AI, atau sistem otomasi industri?
               <br className="hidden md:block" />
@@ -2258,16 +2225,16 @@ export default function MainContent() {
             </motion.p>
           </div>
 
-          <div className="grid lg:grid-cols-5 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8 items-start">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
-              className="lg:col-span-2 space-y-5"
+              className="lg:col-span-2 space-y-3 sm:space-y-5"
             >
-              <h3 className="text-sm font-mono text-zinc-500 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-                <span className="w-8 h-[1px] bg-cyan-500/50" />
+              <h3 className="text-[10px] sm:text-sm font-mono text-zinc-500 uppercase tracking-[0.2em] mb-4 sm:mb-6 flex items-center gap-2">
+                <span className="w-6 sm:w-8 h-[1px] bg-cyan-500/50" />
                 Reach Me Directly
               </h3>
               
@@ -2303,16 +2270,16 @@ export default function MainContent() {
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.5 }}
-                className="pt-6 mt-6 border-t border-zinc-800"
+                className="pt-5 sm:pt-6 mt-5 sm:mt-6 border-t border-zinc-800"
               >
-                <div className="flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-500/30">
-                  <div className="relative">
-                    <div className="w-3 h-3 rounded-full bg-emerald-400" />
-                    <div className="absolute inset-0 w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
+                <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-500/30">
+                  <div className="relative flex-shrink-0">
+                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400" />
+                    <div className="absolute inset-0 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400 animate-ping" />
                   </div>
-                  <div>
-                    <p className="text-xs font-mono text-emerald-300 font-bold uppercase tracking-wider">Available for Projects</p>
-                    <p className="text-[10px] font-mono text-zinc-400">Response time: &lt; 24 hours</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] sm:text-xs font-mono text-emerald-300 font-bold uppercase tracking-wider">Available for Projects</p>
+                    <p className="text-[9px] sm:text-[10px] font-mono text-zinc-400">Response time: &lt; 24 hours</p>
                   </div>
                 </div>
               </motion.div>
@@ -2326,24 +2293,24 @@ export default function MainContent() {
               className="lg:col-span-3"
             >
               <div className="relative">
-                <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-br from-cyan-500/30 via-transparent to-emerald-500/30 opacity-60" />
-                <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 blur-xl opacity-50" />
+                <div className="absolute -inset-[1px] rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500/30 via-transparent to-emerald-500/30 opacity-60" />
+                <div className="absolute -inset-1 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 blur-xl opacity-50" />
                 
-                <div className="relative bg-zinc-950/90 backdrop-blur-xl rounded-3xl p-8 md:p-10 border border-zinc-800">
-                  <div className="mb-8 flex items-start justify-between">
-                    <div>
-                      <h3 className="text-sm font-mono text-zinc-500 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                        <span className="w-8 h-[1px] bg-emerald-500/50" />
+                <div className="relative bg-zinc-950/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-zinc-800">
+                  <div className="mb-6 sm:mb-8 flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-[10px] sm:text-sm font-mono text-zinc-500 uppercase tracking-[0.2em] mb-1.5 sm:mb-2 flex items-center gap-2">
+                        <span className="w-6 sm:w-8 h-[1px] bg-emerald-500/50" />
                         Send a Message
                       </h3>
-                      <h4 className="text-2xl font-bold text-white">Kirim Pesan Anda</h4>
+                      <h4 className="text-lg sm:text-2xl font-bold text-white">Kirim Pesan Anda</h4>
                     </div>
                     <motion.div
                       animate={{ rotate: [0, 10, -10, 0] }}
                       transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                      className="p-3 rounded-xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 border border-cyan-500/30"
+                      className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 border border-cyan-500/30 flex-shrink-0"
                     >
-                      <Send className="w-5 h-5 text-cyan-400" />
+                      <Send className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
                     </motion.div>
                   </div>
 
@@ -2354,7 +2321,7 @@ export default function MainContent() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
-                        className="py-16 text-center space-y-4"
+                        className="py-10 sm:py-16 text-center space-y-4"
                       >
                         <motion.div
                           initial={{ scale: 0 }}
@@ -2363,13 +2330,13 @@ export default function MainContent() {
                           className="relative inline-flex"
                         >
                           <div className="absolute inset-0 bg-emerald-500 blur-2xl opacity-50" />
-                          <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-2xl">
-                            <Check className="w-10 h-10 text-white" strokeWidth={3} />
+                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-2xl">
+                            <Check className="w-8 h-8 sm:w-10 sm:h-10 text-white" strokeWidth={3} />
                           </div>
                         </motion.div>
                         <div>
-                          <h4 className="text-2xl font-bold text-white mb-2">Pesan Terkirim! 🎉</h4>
-                          <p className="text-zinc-400 font-mono text-sm">Terima kasih. Saya akan merespons dalam 24 jam.</p>
+                          <h4 className="text-xl sm:text-2xl font-bold text-white mb-2">Pesan Terkirim! 🎉</h4>
+                          <p className="text-zinc-400 font-mono text-xs sm:text-sm">Terima kasih. Saya akan merespons dalam 24 jam.</p>
                         </div>
                       </motion.div>
                     ) : (
@@ -2379,42 +2346,42 @@ export default function MainContent() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onSubmit={handleFormSubmit}
-                        className="space-y-5"
+                        className="space-y-3 sm:space-y-5"
                       >
-                        <div className="grid md:grid-cols-2 gap-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5">
                           <div className="relative group">
-                            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within:text-cyan-400 transition-colors pointer-events-none" />
+                            <User className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within:text-cyan-400 transition-colors pointer-events-none" />
                             <input 
                               type="text" 
                               required 
                               value={formData.name} 
                               onChange={(e) => setFormData({...formData, name: e.target.value})} 
                               placeholder="Nama Lengkap" 
-                              className="w-full pl-11 pr-5 py-3 rounded-xl bg-zinc-950/80 border border-zinc-800 focus:border-cyan-500 outline-none text-white font-mono text-sm transition-all" 
+                              className="w-full pl-10 sm:pl-11 pr-4 sm:pr-5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-zinc-950/80 border border-zinc-800 focus:border-cyan-500 outline-none text-white font-mono text-xs sm:text-sm transition-all" 
                             />
                           </div>
                           <div className="relative group">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within:text-cyan-400 transition-colors pointer-events-none" />
+                            <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within:text-cyan-400 transition-colors pointer-events-none" />
                             <input 
                               type="email" 
                               required 
                               value={formData.email} 
                               onChange={(e) => setFormData({...formData, email: e.target.value})} 
                               placeholder="Email" 
-                              className="w-full pl-11 pr-5 py-3 rounded-xl bg-zinc-950/80 border border-zinc-800 focus:border-cyan-500 outline-none text-white font-mono text-sm transition-all" 
+                              className="w-full pl-10 sm:pl-11 pr-4 sm:pr-5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-zinc-950/80 border border-zinc-800 focus:border-cyan-500 outline-none text-white font-mono text-xs sm:text-sm transition-all" 
                             />
                           </div>
                         </div>
                         
                         <div className="relative group">
-                          <MessageSquare className="absolute left-4 top-4 w-4 h-4 text-zinc-500 group-focus-within:text-cyan-400 transition-colors pointer-events-none" />
+                          <MessageSquare className="absolute left-3 sm:left-4 top-3 sm:top-4 w-4 h-4 text-zinc-500 group-focus-within:text-cyan-400 transition-colors pointer-events-none" />
                           <textarea 
                             rows={5} 
                             required 
                             value={formData.message} 
                             onChange={(e) => setFormData({...formData, message: e.target.value})} 
                             placeholder="Ceritakan tentang proyek atau ide Anda..." 
-                            className="w-full pl-11 pr-5 py-3 rounded-xl bg-zinc-950/80 border border-zinc-800 focus:border-cyan-500 outline-none text-white font-mono text-sm resize-none transition-all" 
+                            className="w-full pl-10 sm:pl-11 pr-4 sm:pr-5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-zinc-950/80 border border-zinc-800 focus:border-cyan-500 outline-none text-white font-mono text-xs sm:text-sm resize-none transition-all" 
                           />
                         </div>
                         
@@ -2423,7 +2390,7 @@ export default function MainContent() {
                           whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
                           type="submit" 
                           disabled={isSubmitting}
-                          className="group relative w-full py-4 rounded-xl overflow-hidden shadow-2xl disabled:opacity-50"
+                          className="group relative w-full py-3 sm:py-4 rounded-lg sm:rounded-xl overflow-hidden shadow-2xl disabled:opacity-50"
                         >
                           <motion.div
                             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
@@ -2433,13 +2400,13 @@ export default function MainContent() {
                           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500" />
                           <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-blue-400 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                           
-                          <div className="relative flex items-center justify-center gap-3 text-black font-bold text-sm font-mono uppercase tracking-wider">
+                          <div className="relative flex items-center justify-center gap-2 sm:gap-3 text-black font-bold text-xs sm:text-sm font-mono uppercase tracking-wider">
                             {isSubmitting ? (
                               <>
                                 <motion.div
                                   animate={{ rotate: 360 }}
                                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                  className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full"
+                                  className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-black/30 border-t-black rounded-full"
                                 />
                                 <span>Mengirim...</span>
                               </>
@@ -2452,7 +2419,7 @@ export default function MainContent() {
                           </div>
                         </motion.button>
                         
-                        <p className="text-center text-[10px] font-mono text-zinc-600 pt-2">
+                        <p className="text-center text-[9px] sm:text-[10px] font-mono text-zinc-600 pt-2">
                           Dengan mengirim pesan, Anda setuju untuk dihubungi kembali via email/WhatsApp
                         </p>
                       </motion.form>
@@ -2464,30 +2431,29 @@ export default function MainContent() {
           </div>
         </motion.section>
 
-        {/* ========================================== */}
         {/* FOOTER */}
-        {/* ========================================== */}
-        <footer className="pt-16 border-t border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-zinc-500 font-mono">
+        <footer className="pt-10 sm:pt-16 border-t border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 text-xs text-zinc-500 font-mono">
           <div className="text-center md:text-left">
             <p className="text-zinc-300 font-bold text-sm mb-1">Nabilli Rizky</p>
             <p>© 2026 • UPI & SMKN 39 Jakarta</p>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-emerald-400">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <span className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-emerald-400 text-[10px] sm:text-xs whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Available for Work
+              <span className="hidden sm:inline">Available for Work</span>
+              <span className="sm:hidden">Available</span>
             </span>
             <motion.button 
-              whileHover={{ y: -5, scale: 1.1 }}
+              whileHover={{ y: -3, scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 transition-colors border border-zinc-800"
+              className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-zinc-900 hover:bg-zinc-800 transition-colors border border-zinc-800"
             >
               <ChevronUp className="w-4 h-4" />
             </motion.button>
           </div>
         </footer>
       </main>
-    </motion.div>
+    </div>
   );
 }
